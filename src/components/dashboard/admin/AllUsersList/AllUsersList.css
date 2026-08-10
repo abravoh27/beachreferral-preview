@@ -1,0 +1,74 @@
+.users-list-empty {
+  padding: 1rem;
+  color: #888;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.users-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  padding: 0.75rem;
+  border-bottom: 2px solid var(--color-border);
+  text-align: left;
+}
+
+.users-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #e2e3e5;
+  color: #383d41;
+  white-space: nowrap;
+}
+
+.role-vendedor { background: #d4edda; color: #155724; }
+.role-cajera { background: #cce5ff; color: #004085; }
+.role-afiliador { background: #fff3cd; color: #856404; }
+.role-admin { background: #f8d7da; color: #721c24; }
+.role-owner { background: #e2d9f3; color: #4b2e83; }
+
+@media (max-width: 768px) {
+  .users-table thead { display: none; }
+  .users-table, .users-table tbody, .users-table tr, .users-table td {
+    display: block;
+    width: 100%;
+  }
+  .users-table tr {
+    background-color: var(--color-card-bg);
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    padding: 0.75rem 1rem;
+  }
+  .users-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0.5rem 0;
+  }
+  .users-table td:last-child { border-bottom: none; }
+  .users-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-secondary);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+  }
+}

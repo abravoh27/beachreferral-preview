@@ -1,0 +1,53 @@
+.create-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.create-user-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 650px) {
+  .create-user-form .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.create-user-form .input-group {
+  width: 100%;
+}
+
+.create-user-form .input-group label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.create-user-form .input-group input,
+.create-user-form .input-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.create-user-form .input-group select {
+  cursor: pointer;
+}
+
+.create-user-form .input-group input:focus,
+.create-user-form .input-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}

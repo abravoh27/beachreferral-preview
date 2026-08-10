@@ -1,0 +1,6 @@
+.user-management {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+  width: 100%;
+}
