@@ -43,6 +43,51 @@
 .role-admin { background: #f8d7da; color: #721c24; }
 .role-owner { background: #e2d9f3; color: #4b2e83; }
 
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.is-active { background: #d4edda; color: #155724; }
+.status-badge.is-inactive { background: #f8d7da; color: #721c24; }
+
+.toggle-active-btn {
+  border: 1px solid #dc3545;
+  background: white;
+  color: #dc3545;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 50px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.toggle-active-btn:hover:not(:disabled) {
+  background-color: #dc3545;
+  color: white;
+}
+
+.toggle-active-btn.is-reactivate {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.toggle-active-btn.is-reactivate:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.toggle-active-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .users-table thead { display: none; }
   .users-table, .users-table tbody, .users-table tr, .users-table td {

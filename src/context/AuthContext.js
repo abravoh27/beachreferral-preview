@@ -18,8 +18,19 @@ export const AuthProvider = ({ children }) => {
           const userDocRef = doc(db, 'users', firebaseUser.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
-            setUser(firebaseUser);
-            setUserRole(userDoc.data().role);
+            const data = userDoc.data();
+            // Si un admin desactivó esta cuenta (active === false), se cierra
+            // la sesión de inmediato. Si el campo no existe (usuarios viejos),
+            // se trata como activa por defecto.
+            if (data.active === false) {
+              console.warn('Cuenta desactivada por un administrador.');
+              await auth.signOut();
+              setUser(null);
+              setUserRole(null);
+            } else {
+              setUser(firebaseUser);
+              setUserRole(data.role);
+            }
           } else {
             console.error("No user document found!");
             auth.signOut();

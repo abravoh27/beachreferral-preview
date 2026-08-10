@@ -56,6 +56,7 @@ const CreateUserForm = ({ onCreated }) => {
         email,
         phone: formData.phone.trim(),
         role: formData.role,
+        active: true,
         createdByUid: user.uid,
         createdByEmail: user.email,
         createdAt: serverTimestamp(),
