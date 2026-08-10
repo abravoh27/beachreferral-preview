@@ -1,0 +1,92 @@
+.boleto-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(160deg, #eef6ff 0%, #f8f9fa 100%);
+}
+
+.boleto-card {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  padding: 2rem 1.75rem;
+  text-align: center;
+}
+
+.boleto-card--error {
+  padding: 3rem 2rem;
+}
+
+.boleto-card__header {
+  margin-bottom: 1.25rem;
+}
+
+.boleto-logo {
+  width: 90px;
+  margin-bottom: 0.75rem;
+}
+
+.boleto-card__header h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.boleto-status {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.boleto-status--valid { background: #d4edda; color: #155724; }
+.boleto-status--used { background: #cce5ff; color: #004085; }
+.boleto-status--cancelled { background: #f8d7da; color: #721c24; }
+
+.boleto-info {
+  text-align: left;
+  border: 1px solid var(--color-border, #dee2e6);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.boleto-info__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+}
+
+.boleto-info__row span {
+  color: #888;
+}
+
+.boleto-qr {
+  margin-bottom: 1.25rem;
+}
+
+.boleto-qr img {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  border: 1px solid var(--color-border, #dee2e6);
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+
+.boleto-qr p {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.5rem;
+}
+
+.boleto-footnote {
+  font-size: 0.75rem;
+  color: #aaa;
+}

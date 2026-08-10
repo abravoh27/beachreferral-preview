@@ -25,7 +25,11 @@ const ArrivalsBoard = () => {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        // Las reservas del sitio web (source: "sitio_web") tienen su propio
+        // apartado ("Reservas en Línea") con escáner de QR -- no se listan aquí.
+        const data = snapshot.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((s) => s.source !== 'sitio_web');
         data.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
         setPendingSales(data);
         setLoading(false);
