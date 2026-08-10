@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Card from '@/components/ui/Card/Card';
 import Modal from '@/components/ui/Modal/Modal';
@@ -19,21 +19,21 @@ const TopSellersList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 6;
 
-  // 1. Cargar datos UNA sola vez
+  // Suscripción en tiempo real a todas las ventas
   useEffect(() => {
-    const fetchSales = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "sales"));
+    const unsubscribe = onSnapshot(
+      collection(db, "sales"),
+      (querySnapshot) => {
         const salesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setAllSales(salesData);
-      } catch (error) {
+        setLoading(false);
+      },
+      (error) => {
         console.error("Error obteniendo datos:", error);
-      } finally {
         setLoading(false);
       }
-    };
-
-    fetchSales();
+    );
+    return () => unsubscribe();
   }, []);
 
   // 2. Filtrar y Agrupar

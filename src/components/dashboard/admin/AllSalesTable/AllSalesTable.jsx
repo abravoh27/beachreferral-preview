@@ -2,41 +2,41 @@
    Type: uploaded file modification
 */
 'use client';
-import React, { useEffect, useState, useCallback } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore'; 
-import { db } from '@/lib/firebase'; 
+import React, { useEffect, useState } from 'react';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import Card from '@/components/ui/Card/Card';
-import SaleDetailModal from '../SaleDetailModal/SaleDetailModal'; 
+import SaleDetailModal from '../SaleDetailModal/SaleDetailModal';
 import './AllSalesTable.css';
 
 const AllSalesTable = () => {
   const [sales, setSales] = useState([]);
-  const [filteredSales, setFilteredSales] = useState([]); 
-  
+  const [filteredSales, setFilteredSales] = useState([]);
+
   // Filtros
-  const [dateFilter, setDateFilter] = useState('all'); 
-  const [statusFilter, setStatusFilter] = useState('all'); 
-  const [searchTerm, setSearchTerm] = useState(''); 
+  const [dateFilter, setDateFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [selectedSale, setSelectedSale] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 1. Función para Cargar Datos
-  const fetchSales = useCallback(async () => {
-    try {
-        const q = query(collection(db, "sales"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
+  // Suscripción en tiempo real: se actualiza sola apenas un concierge
+  // registra una venta o la cajera/admin la modifica, sin recargar la página.
+  useEffect(() => {
+    const q = query(collection(db, "sales"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
         const salesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setSales(salesData);
-    } catch (error) {
+      },
+      (error) => {
         console.error("Error cargando ventas:", error);
-    }
+      }
+    );
+    return () => unsubscribe();
   }, []);
-
-  // Carga inicial
-  useEffect(() => {
-    fetchSales();
-  }, [fetchSales]);
 
   // 2. Lógica de Filtrado 
   useEffect(() => {
@@ -146,7 +146,7 @@ const AllSalesTable = () => {
               <table className="sales-table">
                   <thead>
                       <tr>
-                          <th>Vendedor / Reserva</th> {/* Cambiado título */}
+                          <th>Vendedor / Reserva</th>
                           <th>Detalles</th>
                           <th>Monto</th>
                           <th>Estado</th>
@@ -188,11 +188,11 @@ const AllSalesTable = () => {
           </div>
       </Card>
 
-      <SaleDetailModal 
-        isOpen={isModalOpen} 
-        onClose={handleModalClose} 
+      {/* Ya no hace falta refetch manual (onUpdate): la suscripción de arriba actualiza sola. */}
+      <SaleDetailModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
         sale={selectedSale}
-        onUpdate={fetchSales} 
       />
     </>
   );

@@ -1,0 +1,93 @@
+.table-container {
+  overflow-x: auto;
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.week-nav button {
+  background: #f1f3f5;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.week-nav button:hover {
+  background-color: #e2e6ea;
+}
+
+.week-nav__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.week-nav__today {
+  width: auto !important;
+  padding: 0 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.report-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #888;
+}
+
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 640px;
+}
+
+.activity-table th,
+.activity-table td {
+  padding: 0.6rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.activity-table th:first-child,
+.activity-table td:first-child {
+  text-align: left;
+  white-space: normal;
+}
+
+.activity-table thead th {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.activity-table thead th span {
+  font-weight: 400;
+  text-transform: none;
+  font-size: 0.65rem;
+  color: #aaa;
+}
+
+.activity-table th.is-today,
+.activity-table td.is-today {
+  background-color: #eef6ff;
+}
+
+.activity-table tfoot td {
+  border-top: 2px solid var(--color-border);
+  border-bottom: none;
+  background-color: #f8f9fa;
+  font-weight: 700;
+}

@@ -3,6 +3,7 @@ import MetricsSummary from '@/components/dashboard/owner/MetricsSummary/MetricsS
 import TopSellersList from '@/components/dashboard/owner/TopSellersList/TopSellersList';
 import ExcelExportButton from '@/components/dashboard/admin/ExcelExportButton/ExcelExportButton';
 import AffiliateCommissionReport from '@/components/dashboard/shared/AffiliateCommissionReport/AffiliateCommissionReport';
+import AllAffiliatesActivity from '@/components/dashboard/shared/AllAffiliatesActivity/AllAffiliatesActivity';
 
 export default function Page() {
   return (
@@ -10,6 +11,10 @@ export default function Page() {
       <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px"}}>
         <h2>Owner Dashboard</h2>
         <ExcelExportButton />
+      </div>
+
+      <div style={{marginBottom: "2rem"}}>
+        <AllAffiliatesActivity />
       </div>
 
       <MetricsSummary />

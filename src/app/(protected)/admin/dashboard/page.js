@@ -4,6 +4,7 @@ import AllSalesTable from '@/components/dashboard/admin/AllSalesTable/AllSalesTa
 import ExcelExportButton from '@/components/dashboard/admin/ExcelExportButton/ExcelExportButton'
 import UserManagement from '@/components/dashboard/admin/UserManagement/UserManagement'
 import AffiliateCommissionReport from '@/components/dashboard/shared/AffiliateCommissionReport/AffiliateCommissionReport'
+import AllAffiliatesActivity from '@/components/dashboard/shared/AllAffiliatesActivity/AllAffiliatesActivity'
 
 export default function Page () {
   const [tab, setTab] = useState('ventas'); // 'ventas' | 'usuarios' | 'comisiones'
@@ -22,7 +23,12 @@ export default function Page () {
 
       {tab === 'ventas' && <AllSalesTable />}
       {tab === 'usuarios' && <UserManagement />}
-      {tab === 'comisiones' && <AffiliateCommissionReport scope="all" />}
+      {tab === 'comisiones' && (
+        <div style={{display: "flex", flexDirection: "column", gap: "2rem"}}>
+          <AllAffiliatesActivity />
+          <AffiliateCommissionReport scope="all" />
+        </div>
+      )}
     </div>
   )
 }

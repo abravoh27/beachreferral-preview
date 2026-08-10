@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Card from '@/components/ui/Card/Card';
 import './MetricsSummary.css';
@@ -8,25 +8,25 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 const MetricsSummary = () => {
   // Cambiamos el estado para reflejar Ganancia Real (Aprobadas) y Por Cobrar (Pendientes)
   const [metrics, setMetrics] = useState({ totalEarned: 0, pending: 0 });
-  const [allSales, setAllSales] = useState([]); 
+  const [allSales, setAllSales] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); 
+  const [filter, setFilter] = useState('all');
 
-  // 1. Cargar datos UNA sola vez
+  // Suscripción en tiempo real a todas las ventas
   useEffect(() => {
-    const fetchSales = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "sales"));
+    const unsubscribe = onSnapshot(
+      collection(db, "sales"),
+      (querySnapshot) => {
         const salesData = querySnapshot.docs.map(doc => doc.data());
         setAllSales(salesData);
-      } catch (error) {
+        setLoading(false);
+      },
+      (error) => {
         console.error("Error al obtener ventas:", error);
-      } finally {
         setLoading(false);
       }
-    };
-
-    fetchSales();
+    );
+    return () => unsubscribe();
   }, []);
 
   // 2. Recalcular cuando cambia el filtro o llegan datos
