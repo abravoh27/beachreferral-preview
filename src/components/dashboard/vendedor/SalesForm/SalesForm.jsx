@@ -18,13 +18,12 @@ const SalesForm = () => {
 
   // Estados auxiliares para la lógica de UI
   const [isAnticipo, setIsAnticipo] = useState(true); // Checkbox estado
-  const [referralMode, setReferralMode] = useState('me'); // 'me' | 'other'
-  
+
   const initialState = {
     date: '',
     city: '',
     quantity: 1,
-    referredBy: '', // Ahora se visualiza como "Concierge"
+    referredBy: '', // Siempre es el propio concierge (ver useEffect abajo)
     reservationFor: '', // Nuevo campo
     amount: '', // Balance
     paymentMethod: 'Efectivo'
@@ -32,14 +31,13 @@ const SalesForm = () => {
 
   const [formData, setFormData] = useState(initialState);
 
-  // Efecto para pre-llenar referido (Concierge) si está en modo "me"
+  // El concierge SOLO puede registrar su propia venta: el campo "Concierge"
+  // siempre es él mismo, de solo lectura (no se puede escribir a nombre de otro).
   useEffect(() => {
-    if (referralMode === 'me' && user) {
+    if (user) {
       setFormData(prev => ({ ...prev, referredBy: user.email }));
-    } else if (referralMode === 'other') {
-      setFormData(prev => ({ ...prev, referredBy: '' }));
     }
-  }, [referralMode, user]);
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,10 +65,9 @@ const SalesForm = () => {
         confirmButtonColor: '#007bff',
       });
 
-      // Resetear formulario
-      setFormData(initialState);
+      // Resetear formulario (el Concierge se vuelve a llenar solo, vía el useEffect)
+      setFormData({ ...initialState, referredBy: user.email });
       setIsAnticipo(true);
-      setReferralMode('me');
     } catch (error) {
       console.error("Error al guardar:", error);
       Swal.fire({
@@ -139,33 +136,14 @@ const SalesForm = () => {
           </div>
         </div>
 
-        {/* Fila 3: Concierge y Reserva Para */}
+        {/* Fila 3: Concierge (solo lectura, siempre el propio usuario) y Reserva Para */}
         <div className="form-row">
           <div className="input-group">
-            <label>Concierge</label> {/* Cambiado de 'Referido por' */}
-            <select 
-              value={referralMode} 
-              onChange={(e) => setReferralMode(e.target.value)}
-              style={{marginBottom: referralMode === 'other' ? '0.5rem' : '0'}}
-            >
-              <option value="me">Yo ({user?.email})</option>
-              <option value="other">Otro...</option>
-            </select>
-            
-            {referralMode === 'other' && (
-              <input
-                type="text"
-                id="referredBy"
-                placeholder="Nombre del Concierge"
-                value={formData.referredBy}
-                onChange={handleChange}
-                required
-                className="mt-2" 
-              />
-            )}
+            <label>Concierge</label>
+            <input type="text" value={user?.email || ''} disabled />
           </div>
 
-          <Input 
+          <Input
             label="Reserva para" 
             id="reservationFor" 
             type="text" 
