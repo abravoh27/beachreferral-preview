@@ -15,9 +15,10 @@ const initialState = { name: '', email: '', hotel: '', phone: '' };
 const generateTempPassword = () =>
   Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
 
-// Formulario de una sola columna, estilo "Google Forms": es lo primero
-// (y lo más grande) que ve el afiliador al entrar a su dashboard.
-const AffiliateForm = ({ onAffiliated }) => {
+// Formulario de una sola columna, estilo "Google Forms".
+// variant="standalone" -> trae su propio encabezado grande (usado suelto en una página).
+// variant="modal"      -> sin encabezado propio, para usarse dentro del <Modal> (que ya trae título y botón de cerrar).
+const AffiliateForm = ({ onAffiliated, variant = 'standalone' }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
@@ -83,12 +84,16 @@ const AffiliateForm = ({ onAffiliated }) => {
     }
   };
 
+  const isModal = variant === 'modal';
+
   return (
-    <div className="gform">
-      <div className="gform__header">
-        <h1>Registrar Concierge</h1>
-        <p>Da de alta a un nuevo concierge en un par de datos. Al enviar el formulario, queda registrado en el sistema y le llega un correo para crear su contraseña.</p>
-      </div>
+    <div className={isModal ? 'gform gform--modal' : 'gform'}>
+      {!isModal && (
+        <div className="gform__header">
+          <h1>Registrar Concierge</h1>
+          <p>Da de alta a un nuevo concierge en un par de datos. Al enviar el formulario, queda registrado en el sistema y le llega un correo para crear su contraseña.</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="gform__form">
         <div className="gform__field">

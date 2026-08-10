@@ -1,0 +1,97 @@
+.stats-empty {
+  padding: 1rem;
+  color: #888;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stats-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.stats-card__value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.stats-card__label {
+  font-size: 0.8rem;
+  color: var(--color-secondary);
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+.stats-per-day__title {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.stats-per-day__row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.stats-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.6rem 0.25rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.stats-day.is-today {
+  background-color: #eef6ff;
+  border: 1px solid var(--color-primary);
+}
+
+.stats-day__dow {
+  font-size: 0.7rem;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.stats-day__date {
+  font-size: 0.7rem;
+  color: #aaa;
+}
+
+.stats-day__count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 500px) {
+  .stats-cards {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .stats-card {
+    padding: 0.75rem 0.5rem;
+  }
+  .stats-card__value {
+    font-size: 1.4rem;
+  }
+  .stats-per-day__row {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+  }
+}

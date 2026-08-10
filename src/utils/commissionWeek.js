@@ -8,7 +8,7 @@ const toDateOnly = (d) => {
   return copy;
 };
 
-const formatDateStr = (d) => {
+export const formatDateStr = (d) => {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');

@@ -9,6 +9,18 @@
   overflow: hidden;
 }
 
+/* Dentro de un <Modal>, el modal ya aporta tarjeta + sombra + título propios */
+.gform--modal {
+  max-width: none;
+  border-top: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.gform--modal .gform__form {
+  padding: 0;
+}
+
 .gform__header {
   padding: 2rem 2rem 1.5rem;
   border-bottom: 1px solid var(--color-border);

@@ -3,13 +3,18 @@
   flex-direction: column;
   gap: 2rem;
   width: 100%;
-  max-width: 640px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-/* El historial queda visible pero visualmente secundario: el formulario
-   de registro es lo protagónico en esta pantalla. */
-.affiliate-dashboard__history {
-  opacity: 0.9;
-  font-size: 0.95rem;
+.affiliate-dashboard__topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.affiliate-dashboard__topbar h2 {
+  margin: 0;
 }

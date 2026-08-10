@@ -2,7 +2,9 @@
 import React, { useMemo, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useCompletedSales, useConcierges } from '@/hooks/useCommissionData';
+import { useWeeklyPayments, setWeeklyPaymentStatus } from '@/hooks/useWeeklyPayments';
 import { getCommissionWeek, shiftCommissionWeek, formatWeekLabel, formatShortDate } from '@/utils/commissionWeek';
+import Swal from 'sweetalert2';
 import Card from '@/components/ui/Card/Card';
 import './AffiliateCommissionReport.css';
 
@@ -17,8 +19,10 @@ const AffiliateCommissionReport = ({ scope = 'own' }) => {
   const { sales, loading: loadingSales } = useCompletedSales();
   const { concierges, loading: loadingConcierges } = useConcierges();
   const [weekStart, setWeekStart] = useState(() => getCommissionWeek().startDate);
+  const [updatingUid, setUpdatingUid] = useState(null);
 
   const week = useMemo(() => getCommissionWeek(weekStart), [weekStart]);
+  const { payments } = useWeeklyPayments(week.startStr);
   const loading = loadingSales || loadingConcierges;
 
   const goPrevWeek = () => setWeekStart((prev) => shiftCommissionWeek(prev, -1).startDate);
@@ -79,6 +83,30 @@ const AffiliateCommissionReport = ({ scope = 'own' }) => {
   const grandTotalPax = visibleGroups.reduce((sum, g) => sum + g.totalPax, 0);
   const grandTotalPay = grandTotalPax * PAX_RATE;
 
+  const handleTogglePaid = async (group) => {
+    if (group.afiliadorUid === 'none') return; // no hay a quién marcarle el pago
+    const current = payments[group.afiliadorUid];
+    const nextPaid = !current?.paid;
+
+    setUpdatingUid(group.afiliadorUid);
+    try {
+      await setWeeklyPaymentStatus({
+        afiliadorUid: group.afiliadorUid,
+        afiliadorEmail: group.afiliadorEmail,
+        week,
+        paid: nextPaid,
+        totalPax: group.totalPax,
+        totalAmount: group.totalPax * PAX_RATE,
+        markedBy: user,
+      });
+    } catch (error) {
+      console.error('Error al actualizar estado de pago:', error);
+      Swal.fire('Error', 'No se pudo actualizar el estado de pago.', 'error');
+    } finally {
+      setUpdatingUid(null);
+    }
+  };
+
   return (
     <Card title={scope === 'own' ? 'Mi Reporte Semanal' : 'Reporte Semanal de Afiliados'}>
       <div className="week-nav">
@@ -101,40 +129,50 @@ const AffiliateCommissionReport = ({ scope = 'own' }) => {
         </p>
       ) : (
         <>
-          {visibleGroups.map((group) => (
-            <div key={group.afiliadorUid} className="affiliate-group">
-              {scope === 'all' && (
+          {visibleGroups.map((group) => {
+            const isPaid = !!payments[group.afiliadorUid]?.paid;
+            return (
+              <div key={group.afiliadorUid} className="affiliate-group">
                 <div className="affiliate-group__header">
-                  <span className="affiliate-group__name">{group.afiliadorEmail}</span>
+                  {scope === 'all' && <span className="affiliate-group__name">{group.afiliadorEmail}</span>}
                   <span className="affiliate-group__total">
                     {group.totalPax} pax · ${(group.totalPax * PAX_RATE).toLocaleString()}
                   </span>
+                  {group.afiliadorUid !== 'none' && (
+                    <button
+                      className={`paid-toggle ${isPaid ? 'is-paid' : ''}`}
+                      onClick={() => handleTogglePaid(group)}
+                      disabled={updatingUid === group.afiliadorUid}
+                    >
+                      {isPaid ? '✅ Cobrado' : 'Marcar como cobrado'}
+                    </button>
+                  )}
                 </div>
-              )}
-              <div className="table-container">
-                <table className="commission-table">
-                  <thead>
-                    <tr>
-                      <th>Concierge</th>
-                      <th>Hotel</th>
-                      <th>Visitas</th>
-                      <th>Pax</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Array.from(group.concierges.values()).map((c) => (
-                      <tr key={c.email || c.name}>
-                        <td data-label="Concierge">{c.name}</td>
-                        <td data-label="Hotel">{c.hotel || '-'}</td>
-                        <td data-label="Visitas">{c.visits}</td>
-                        <td data-label="Pax">{c.pax}</td>
+                <div className="table-container">
+                  <table className="commission-table">
+                    <thead>
+                      <tr>
+                        <th>Concierge</th>
+                        <th>Hotel</th>
+                        <th>Visitas</th>
+                        <th>Pax</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {Array.from(group.concierges.values()).map((c) => (
+                        <tr key={c.email || c.name}>
+                          <td data-label="Concierge">{c.name}</td>
+                          <td data-label="Hotel">{c.hotel || '-'}</td>
+                          <td data-label="Visitas">{c.visits}</td>
+                          <td data-label="Pax">{c.pax}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           <div className="report-total">
             <span>Total: {grandTotalPax} persona{grandTotalPax === 1 ? '' : 's'} llegaron</span>
