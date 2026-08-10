@@ -1,0 +1,149 @@
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.week-nav button {
+  background: #f1f3f5;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.week-nav button:hover {
+  background-color: #e2e6ea;
+}
+
+.week-nav__label {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.week-nav__label strong {
+  font-size: 1rem;
+}
+
+.week-nav__pay {
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.week-nav__today {
+  width: auto !important;
+  padding: 0 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.report-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #888;
+}
+
+.affiliate-group {
+  margin-bottom: 1.5rem;
+}
+
+.affiliate-group:last-child {
+  margin-bottom: 0;
+}
+
+.affiliate-group__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  background-color: #eef6ff;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.affiliate-group__name {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.affiliate-group__total {
+  font-weight: 700;
+}
+
+.commission-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.commission-table th {
+  text-align: left;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.commission-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.report-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #d4edda;
+  font-weight: 700;
+  font-size: 1.05rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.report-total__amount {
+  color: #155724;
+  font-size: 1.3rem;
+}
+
+@media (max-width: 600px) {
+  .commission-table thead {
+    display: none;
+  }
+  .commission-table, .commission-table tbody, .commission-table tr, .commission-table td {
+    display: block;
+    width: 100%;
+  }
+  .commission-table tr {
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.5rem 0;
+  }
+  .commission-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0.5rem;
+    border-bottom: none;
+  }
+  .commission-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+}
