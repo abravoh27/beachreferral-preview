@@ -1,0 +1,43 @@
+.my-concierges-empty {
+  padding: 1rem;
+  color: #888;
+}
+
+.concierge-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+}
+
+.concierge-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.concierge-item strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.concierge-meta {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.concierge-hotel {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: #eef6ff;
+  padding: 4px 10px;
+  border-radius: 50px;
+}

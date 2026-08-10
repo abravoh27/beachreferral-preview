@@ -1,0 +1,8 @@
+.affiliate-dashboard {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}

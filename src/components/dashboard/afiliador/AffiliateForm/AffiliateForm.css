@@ -1,0 +1,54 @@
+.affiliate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.affiliate-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 650px) {
+  .affiliate-form .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.affiliate-form .input-group {
+  width: 100%;
+}
+
+.affiliate-form .input-group label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.affiliate-form .input-group input,
+.affiliate-form .input-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.affiliate-form .input-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.affiliate-form .input-group input:disabled {
+  background-color: #f1f3f5;
+  color: #888;
+  cursor: not-allowed;
+}

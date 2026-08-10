@@ -14,6 +14,8 @@ export default function LoginPage() {
     if (userRole === 'vendedor') router.replace('/vendedor/dashboard');
     else if (userRole === 'admin') router.replace('/admin/dashboard');
     else if (userRole === 'owner') router.replace('/owner/dashboard');
+    else if (userRole === 'cajera') router.replace('/cajera/dashboard');
+    else if (userRole === 'afiliador') router.replace('/afiliador/dashboard');
     return <div className={styles.loginPage__loading}>Redirecting...</div>;
   }
   return (

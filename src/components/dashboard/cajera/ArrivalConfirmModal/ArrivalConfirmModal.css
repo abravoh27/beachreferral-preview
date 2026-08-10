@@ -1,0 +1,45 @@
+.arrival-modal-content .info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  font-size: 0.9rem;
+}
+
+.arrival-modal-content .form-group {
+  margin-bottom: 1rem;
+}
+
+.arrival-modal-content .form-group label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.arrival-modal-content .admin-input {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.arrival-modal-content .admin-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.arrival-modal-content .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
