@@ -1,8 +1,15 @@
 .affiliate-dashboard {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
-  grid-template-columns: 1fr;
   width: 100%;
-  max-width: 1000px;
+  max-width: 640px;
   margin: 0 auto;
+}
+
+/* El historial queda visible pero visualmente secundario: el formulario
+   de registro es lo protagónico en esta pantalla. */
+.affiliate-dashboard__history {
+  opacity: 0.9;
+  font-size: 0.95rem;
 }

@@ -7,7 +7,9 @@ import './AffiliateDashboard.css';
 const AffiliateDashboard = () => (
   <div className="affiliate-dashboard">
     <AffiliateForm />
-    <MyConcierges />
+    <div className="affiliate-dashboard__history">
+      <MyConcierges />
+    </div>
   </div>
 );
 

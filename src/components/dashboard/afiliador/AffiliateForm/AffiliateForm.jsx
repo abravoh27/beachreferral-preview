@@ -6,9 +6,6 @@ import { secondaryAuth } from '@/lib/firebaseSecondary';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 import Swal from 'sweetalert2';
-import Input from '@/components/ui/Input/Input';
-import Button from '@/components/ui/Button/Button';
-import Card from '@/components/ui/Card/Card';
 import './AffiliateForm.css';
 
 const initialState = { name: '', email: '', hotel: '', phone: '' };
@@ -18,6 +15,8 @@ const initialState = { name: '', email: '', hotel: '', phone: '' };
 const generateTempPassword = () =>
   Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
 
+// Formulario de una sola columna, estilo "Google Forms": es lo primero
+// (y lo más grande) que ve el afiliador al entrar a su dashboard.
 const AffiliateForm = ({ onAffiliated }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState(initialState);
@@ -62,7 +61,7 @@ const AffiliateForm = ({ onAffiliated }) => {
       await signOut(secondaryAuth);
 
       Swal.fire({
-        title: '¡Concierge afiliado!',
+        title: '¡Concierge registrado!',
         text: `Se registró a ${formData.name} y se le envió un correo para crear su contraseña.`,
         icon: 'success',
         confirmButtonColor: '#007bff',
@@ -72,7 +71,7 @@ const AffiliateForm = ({ onAffiliated }) => {
       if (onAffiliated) onAffiliated();
     } catch (error) {
       console.error('Error al afiliar concierge:', error);
-      let message = 'Hubo un problema al afiliar al concierge.';
+      let message = 'Hubo un problema al registrar al concierge.';
       if (error.code === 'auth/email-already-in-use') {
         message = 'Ese correo ya está registrado en el sistema.';
       } else if (error.code === 'auth/invalid-email') {
@@ -85,25 +84,43 @@ const AffiliateForm = ({ onAffiliated }) => {
   };
 
   return (
-    <Card title="Afiliar Nuevo Concierge">
-      <form onSubmit={handleSubmit} className="affiliate-form">
-        <div className="form-row">
-          <Input label="Nombre completo" id="name" value={formData.name} onChange={handleChange} required />
-          <Input label="Email" id="email" type="email" value={formData.email} onChange={handleChange} required />
+    <div className="gform">
+      <div className="gform__header">
+        <h1>Registrar Concierge</h1>
+        <p>Da de alta a un nuevo concierge en un par de datos. Al enviar el formulario, queda registrado en el sistema y le llega un correo para crear su contraseña.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="gform__form">
+        <div className="gform__field">
+          <label htmlFor="name">Nombre completo</label>
+          <input id="name" type="text" value={formData.name} onChange={handleChange} placeholder="Ej. Juan Pérez" required />
         </div>
-        <div className="form-row">
-          <Input label="Hotel / Propiedad" id="hotel" value={formData.hotel} onChange={handleChange} required />
-          <Input label="Teléfono / WhatsApp" id="phone" value={formData.phone} onChange={handleChange} required />
+
+        <div className="gform__field">
+          <label htmlFor="email">Email</label>
+          <input id="email" type="email" value={formData.email} onChange={handleChange} placeholder="correo@ejemplo.com" required />
         </div>
-        <div className="input-group">
+
+        <div className="gform__field">
+          <label htmlFor="hotel">Hotel / Propiedad</label>
+          <input id="hotel" type="text" value={formData.hotel} onChange={handleChange} placeholder="Ej. Hotel Riviera" required />
+        </div>
+
+        <div className="gform__field">
+          <label htmlFor="phone">Teléfono / WhatsApp</label>
+          <input id="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="Ej. 984 123 4567" required />
+        </div>
+
+        <div className="gform__field gform__field--readonly">
           <label>Afiliado por</label>
           <input type="text" value={user?.email || ''} disabled />
         </div>
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Afiliando...' : 'Afiliar Concierge'}
-        </Button>
+
+        <button type="submit" className="gform__submit" disabled={loading}>
+          {loading ? 'Registrando...' : 'Registrar Concierge'}
+        </button>
       </form>
-    </Card>
+    </div>
   );
 };
 

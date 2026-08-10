@@ -1,54 +1,108 @@
-.affiliate-form {
+.gform {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  background-color: var(--color-card-bg);
+  border-radius: 14px;
+  border-top: 8px solid var(--color-primary);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.gform__header {
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.gform__header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.gform__header p {
+  color: var(--color-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.gform__form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  width: 100%;
+  gap: 1.75rem;
+  padding: 2rem;
 }
 
-.affiliate-form .form-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  width: 100%;
+.gform__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-@media (min-width: 650px) {
-  .affiliate-form .form-row {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.affiliate-form .input-group {
-  width: 100%;
-}
-
-.affiliate-form .input-group label {
-  display: block;
-  margin-bottom: 0.35rem;
+.gform__field label {
   font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.affiliate-form .input-group input,
-.affiliate-form .input-group select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background-color: white;
-  font-family: inherit;
   font-size: 0.95rem;
+}
+
+.gform__field input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-bottom: 2px solid var(--color-border);
+  border-radius: 4px 4px 0 0;
+  background-color: #f8f9fa;
+  font-family: inherit;
+  font-size: 1rem;
   box-sizing: border-box;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.affiliate-form .input-group input:focus {
+.gform__field input:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  border-bottom-color: var(--color-primary);
+  background-color: #eef6ff;
 }
 
-.affiliate-form .input-group input:disabled {
-  background-color: #f1f3f5;
+.gform__field--readonly input {
   color: #888;
   cursor: not-allowed;
+}
+
+.gform__submit {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  padding: 0.9rem 2rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.gform__submit:hover:not(:disabled) {
+  background-color: #0069d9;
+}
+
+.gform__submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.gform__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .gform__header {
+    padding: 1.5rem 1.25rem 1rem;
+  }
+  .gform__form {
+    padding: 1.5rem 1.25rem;
+  }
+  .gform__submit {
+    width: 100%;
+  }
 }

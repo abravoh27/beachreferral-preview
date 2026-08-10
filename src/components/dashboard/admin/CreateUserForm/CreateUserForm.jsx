@@ -12,22 +12,19 @@ import Card from '@/components/ui/Card/Card';
 import './CreateUserForm.css';
 
 export const ROLE_OPTIONS = [
-  { value: 'vendedor', label: 'Vendedor / Concierge' },
   { value: 'cajera', label: 'Cajera (Beach Club)' },
   { value: 'afiliador', label: 'Afiliador' },
-  { value: 'admin', label: 'Administración' },
-  { value: 'owner', label: 'Dueño' },
 ];
 
-const initialState = { name: '', email: '', phone: '', hotel: '', role: 'vendedor' };
+const initialState = { name: '', email: '', phone: '', role: 'cajera' };
 
 // Genera una contraseña temporal aleatoria. El usuario nunca la ve:
 // se le manda un correo de "restablecer contraseña" para que defina la suya.
 const generateTempPassword = () =>
   Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
 
-// Permite a Admin crear cualquier tipo de usuario del sistema (vendedor,
-// cajera, afiliador, admin, owner) sin depender de Firebase Console.
+// Permite a Admin crear cuentas de Cajera y Afiliador sin depender de
+// Firebase Console. (Vendedor/Admin/Owner se manejan por otra vía.)
 const CreateUserForm = ({ onCreated }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState(initialState);
@@ -63,9 +60,6 @@ const CreateUserForm = ({ onCreated }) => {
         createdByEmail: user.email,
         createdAt: serverTimestamp(),
       };
-      if (formData.role === 'vendedor' && formData.hotel.trim()) {
-        userDoc.hotel = formData.hotel.trim();
-      }
       await setDoc(doc(db, 'users', newUser.uid), userDoc);
 
       // 3. Enviar correo para que el nuevo usuario defina su propia contraseña.
@@ -99,7 +93,7 @@ const CreateUserForm = ({ onCreated }) => {
   };
 
   return (
-    <Card title="Crear Nuevo Usuario">
+    <Card title="Crear Usuario (Cajera / Afiliador)">
       <form onSubmit={handleSubmit} className="create-user-form">
         <div className="form-row">
           <Input label="Nombre completo" id="name" value={formData.name} onChange={handleChange} required />
@@ -116,12 +110,6 @@ const CreateUserForm = ({ onCreated }) => {
             </select>
           </div>
         </div>
-        {formData.role === 'vendedor' && (
-          <div className="form-row">
-            <Input label="Hotel / Propiedad" id="hotel" value={formData.hotel} onChange={handleChange} />
-            <div />
-          </div>
-        )}
         <Button type="submit" disabled={loading}>
           {loading ? 'Creando...' : 'Crear Usuario'}
         </Button>

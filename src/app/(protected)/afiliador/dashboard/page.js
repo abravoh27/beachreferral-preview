@@ -8,10 +8,5 @@ export default function Page() {
 
   if (loading || !allowed) return null;
 
-  return (
-    <div>
-      <h2 style={{ marginBottom: '1.5rem' }}>Panel de Afiliación</h2>
-      <AffiliateDashboard />
-    </div>
-  );
+  return <AffiliateDashboard />;
 }
