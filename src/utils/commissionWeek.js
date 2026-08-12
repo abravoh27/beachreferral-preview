@@ -1,6 +1,7 @@
-// La "semana de comisión" corre de Sábado a Viernes. El pago se hace el
-// Lunes siguiente, para dejar sábado y domingo para juntar el dinero.
-// Ej: semana 8-14 (sáb a vie) se paga el 17 (lunes); semana 15-21 se paga el 24.
+// La "semana de comisión" corre de Lunes a Domingo. El domingo cierra la
+// semana y el pago se hace el Miércoles siguiente (Lunes/Martes para juntar
+// y revisar el dinero, y pagar el Miércoles).
+// Ej: semana Lun 10 - Dom 16 -> se paga el Miércoles 19.
 
 const toDateOnly = (d) => {
   const copy = new Date(d);
@@ -19,21 +20,21 @@ const MONTHS_ES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep'
 
 export const formatShortDate = (d) => `${d.getDate()} ${MONTHS_ES[d.getMonth()]}`;
 
-// Dado cualquier día de referencia, regresa el rango Sábado-Viernes que lo
-// contiene, más la fecha de pago (el lunes siguiente al viernes).
+// Dado cualquier día de referencia, regresa el rango Lunes-Domingo que lo
+// contiene, más la fecha de pago (el miércoles siguiente al domingo).
 export const getCommissionWeek = (referenceDate = new Date()) => {
   const ref = toDateOnly(referenceDate);
   const dow = ref.getDay(); // 0=Domingo ... 6=Sábado
-  const daysSinceSaturday = (dow + 1) % 7; // Sábado->0, Domingo->1, Lunes->2 ... Viernes->6
+  const daysSinceMonday = (dow + 6) % 7; // Lunes->0, Martes->1 ... Domingo->6
 
   const start = new Date(ref);
-  start.setDate(ref.getDate() - daysSinceSaturday);
+  start.setDate(ref.getDate() - daysSinceMonday);
 
   const end = new Date(start);
-  end.setDate(start.getDate() + 6);
+  end.setDate(start.getDate() + 6); // Domingo
 
   const payDate = new Date(end);
-  payDate.setDate(end.getDate() + 3); // viernes + 3 días = lunes
+  payDate.setDate(end.getDate() + 3); // domingo + 3 días = miércoles
 
   return {
     startDate: start,

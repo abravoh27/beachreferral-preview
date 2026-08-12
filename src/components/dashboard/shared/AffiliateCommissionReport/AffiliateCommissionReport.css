@@ -2,6 +2,12 @@
   overflow-x: auto;
 }
 
+.cycle-note {
+  font-size: 0.8rem;
+  color: var(--color-secondary);
+  margin-bottom: 1rem;
+}
+
 .week-nav {
   display: flex;
   align-items: center;

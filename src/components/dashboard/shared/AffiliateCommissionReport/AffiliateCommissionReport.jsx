@@ -109,6 +109,9 @@ const AffiliateCommissionReport = ({ scope = 'own' }) => {
 
   return (
     <Card title={scope === 'own' ? 'Mi Reporte Semanal' : 'Reporte Semanal de Afiliados'}>
+      <p className="cycle-note">
+        Ciclo: Lunes a Domingo. El reporte cierra el domingo y se paga el <strong>Miércoles</strong> siguiente.
+      </p>
       <div className="week-nav">
         <button onClick={goPrevWeek} aria-label="Semana anterior">←</button>
         <div className="week-nav__label">
