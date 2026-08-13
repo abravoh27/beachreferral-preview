@@ -1,0 +1,101 @@
+.apps-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.apps-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.apps-filters button {
+  background: #f1f3f5;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.apps-filters button:hover {
+  background-color: #e2e6ea;
+}
+
+.apps-filters button.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.apps-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #888;
+}
+
+.apps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 650px) {
+  .apps-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.app-card {
+  text-align: left;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  transition: box-shadow 0.2s ease;
+}
+
+.app-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.app-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.app-card__name {
+  font-weight: 700;
+}
+
+.app-card__badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 50px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.app-card__contact {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+}
+
+.app-card__ref {
+  font-size: 0.7rem;
+  color: #aaa;
+  font-family: monospace;
+}

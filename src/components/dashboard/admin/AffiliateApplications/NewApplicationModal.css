@@ -1,0 +1,35 @@
+.new-app-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.new-app-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 500px) {
+  .new-app-form__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.new-app-form .input-group label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.new-app-form .input-group input,
+.new-app-form .input-group textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}

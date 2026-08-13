@@ -1,0 +1,389 @@
+openapi: 3.0.3
+info:
+  title: API de Afiliados — Nasim Group
+  description: |
+    Contrato para conectar el sitio web de Nasim Group (reservaciones, pagos vía Clip)
+    con la app de afiliados (dashboard de concierges, cajera, admin, owner).
+
+    Toda la comunicación es **servidor a servidor**. Ninguna llave (`x-api-key`) debe
+    exponerse en el navegador del cliente.
+  version: "1.0.0"
+servers:
+  - url: https://beachreferral-preview.vercel.app
+    description: Ambiente de pruebas (preview)
+  - url: https://REEMPLAZAR-CON-DOMINIO-PRODUCCION
+    description: Producción (pendiente de definir)
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: Llave compartida (variable de entorno WEB_BOOKING_API_KEY). Nunca va en el navegador.
+
+  schemas:
+    ReservationCreateRequest:
+      type: object
+      required: [date, reservationFor, quantity, amount]
+      properties:
+        reference:
+          type: string
+          description: Folio único del sitio de Nasim Group. Se usa como llave de idempotencia — reintentar con el mismo valor regresa la reserva ya creada en vez de duplicarla.
+          example: "NASIM-2026-000123"
+        business:
+          type: string
+          example: "Mandarino Beach Club"
+        experienceType:
+          type: string
+          example: "Day Pass"
+        date:
+          type: string
+          format: date
+          example: "2026-08-20"
+        scheduledTime:
+          type: string
+          description: Hora de llegada, solo de referencia (no es un slot con límite).
+          example: "11:00"
+        duration:
+          type: string
+          example: "todo el día"
+        quantity:
+          type: integer
+          minimum: 1
+          example: 3
+        reservationFor:
+          type: string
+          description: Nombre del cliente/titular.
+          example: "Juan Pérez"
+        customerEmail:
+          type: string
+          format: email
+        customerPhone:
+          type: string
+        specialOccasion:
+          type: string
+        decorationRequest:
+          type: string
+        notes:
+          type: string
+        amount:
+          type: number
+          example: 600
+        currency:
+          type: string
+          default: "MXN"
+        paymentReference:
+          type: string
+          description: ID de la transacción de Clip.
+        referralCode:
+          type: string
+          description: Código del link/QR de referido (?ref=CODIGO). Si se omite, la reserva se marca como "direct".
+        affiliateId:
+          type: string
+          description: Opcional. Si no se manda pero sí referralCode, se resuelve automáticamente.
+        hotelId:
+          type: string
+          description: Opcional. Se resuelve automáticamente a partir de referralCode si no se manda.
+
+    ReservationCreateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        id:
+          type: string
+          description: ID interno de la reserva (usado en /events).
+        boletoUrl:
+          type: string
+          description: Link público al boleto con QR — redirigir al cliente aquí.
+        alreadyExisted:
+          type: boolean
+          description: true si la llamada era un reintento de una reserva ya creada (idempotencia).
+
+    ReservationEventRequest:
+      type: object
+      required: [event]
+      properties:
+        event:
+          type: string
+          enum:
+            - reservation_payment_confirmed
+            - reservation_cancelled
+            - reservation_expired
+            - reservation_checked_in
+        reason:
+          type: string
+          description: Solo para reservation_cancelled.
+        entryTime:
+          type: string
+          description: Solo para reservation_checked_in (si se omite, se usa la hora del servidor).
+
+    AffiliateApplicationCreateRequest:
+      type: object
+      required: [name, businessName]
+      properties:
+        reference:
+          type: string
+          description: Folio propio (opcional). Si se omite, la app de afiliados genera uno (formato AFF-AAAAMMDD-XXXXXX) y lo regresa en la respuesta. Es la llave de idempotencia.
+        name:
+          type: string
+          description: Nombre del contacto.
+        businessName:
+          type: string
+          description: Hotel, agencia o negocio.
+        roleType:
+          type: string
+          example: "Hotel"
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        interests:
+          type: string
+          description: Experiencias que quiere recomendar.
+        monthlyGuests:
+          type: string
+          description: Volumen mensual estimado.
+        notes:
+          type: string
+        contactConsent:
+          type: boolean
+        promotionsConsent:
+          type: boolean
+        source:
+          type: string
+          default: "website_about"
+
+    AffiliateApplicationCreateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        reference:
+          type: string
+        status:
+          type: string
+          enum: [new]
+        alreadyExisted:
+          type: boolean
+
+    AffiliateApplicationStatusResponse:
+      type: object
+      properties:
+        reference:
+          type: string
+        status:
+          type: string
+          enum: [new, information_sent, accepted, active, paused, rejected]
+        businessName:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    ValidateReferralRequest:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          example: "7XK92QM"
+
+    ValidateReferralResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        affiliateId:
+          type: string
+          nullable: true
+        affiliateName:
+          type: string
+          nullable: true
+        hotelId:
+          type: string
+          nullable: true
+        hotelName:
+          type: string
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+
+paths:
+  /api/reservas-web:
+    post:
+      summary: Crear una reserva (evento reservation_created)
+      description: |
+        Llamar SOLO después de que el formulario del sitio ya fue validado y guardado
+        de su lado (no en el simple clic de "Reservar"; ese clic puede registrarse
+        aparte como un evento analítico `booking_started` que no le concierne a esta API).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationCreateRequest'
+      responses:
+        '201':
+          description: Reserva creada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationCreateResponse'
+        '200':
+          description: Ya existía (idempotencia) — se regresa la reserva existente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationCreateResponse'
+        '400':
+          description: Faltan campos o son inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: x-api-key inválida o ausente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/reservas-web/{id}/events:
+    post:
+      summary: Actualizar el estado de una reserva (pago, cancelación, vencimiento, check-in)
+      description: |
+        Idempotente por diseño: cada evento fija los mismos campos sin importar cuántas
+        veces se reciba, así que los reintentos del sitio web son seguros.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: El `id` recibido en la respuesta de POST /api/reservas-web.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationEventRequest'
+      responses:
+        '200':
+          description: Evento procesado.
+        '400':
+          description: Evento inválido o body incorrecto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: x-api-key inválida o ausente.
+        '404':
+          description: No existe una reserva con ese id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/affiliate-applications:
+    post:
+      summary: Registrar una nueva solicitud de afiliación (hotel/concierge/agencia)
+      description: |
+        Entra siempre con status "new". La activación como "Hotel Afiliado" (status
+        "active") SIEMPRE requiere una acción manual de un admin autenticado dentro
+        del dashboard — nunca ocurre automáticamente, ni aunque el interesado acepte
+        condiciones.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AffiliateApplicationCreateRequest'
+      responses:
+        '201':
+          description: Solicitud creada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AffiliateApplicationCreateResponse'
+        '200':
+          description: Ya existía (idempotencia por reference).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AffiliateApplicationCreateResponse'
+        '400':
+          description: Faltan campos obligatorios.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: x-api-key inválida o ausente.
+
+  /api/affiliate-applications/{reference}:
+    get:
+      summary: Consultar el estado de una solicitud por su folio
+      parameters:
+        - name: reference
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Estado actual de la solicitud.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AffiliateApplicationStatusResponse'
+        '401':
+          description: x-api-key inválida o ausente.
+        '404':
+          description: No existe una solicitud con ese folio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/validate-referral:
+    post:
+      summary: Validar un código de referido (?ref=CODIGO) y resolver a quién atribuirlo
+      description: |
+        Llamar server-to-server cuando un visitante llega con `?ref=CODIGO`, para
+        obtener `affiliateId`/`hotelId` antes de mostrar el checkout. El cliente
+        nunca elige manualmente un hotel/afiliado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateReferralRequest'
+      responses:
+        '200':
+          description: Resultado de la validación (valid puede ser false sin ser un error).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateReferralResponse'
+        '400':
+          description: Falta el código.
+        '401':
+          description: x-api-key inválida o ausente.

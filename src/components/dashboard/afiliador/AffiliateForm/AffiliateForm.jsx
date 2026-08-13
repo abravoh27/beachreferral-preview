@@ -6,6 +6,7 @@ import { secondaryAuth } from '@/lib/firebaseSecondary';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 import Swal from 'sweetalert2';
+import { generateReferralCode } from '@/lib/referenceGenerator';
 import './AffiliateForm.css';
 
 const initialState = { name: '', email: '', hotel: '', phone: '' };
@@ -44,12 +45,15 @@ const AffiliateForm = ({ onAffiliated, variant = 'standalone' }) => {
       );
 
       // 2. Dar de alta al concierge en Firestore, registrando quién lo afilió.
+      //    referralCode: código corto para el link del sitio web (?ref=CODIGO),
+      //    usado para atribuirle a este concierge las reservas que lleguen así.
       await setDoc(doc(db, 'users', newUser.uid), {
         name: formData.name.trim(),
         email,
         hotel: formData.hotel.trim(),
         phone: formData.phone.trim(),
         role: 'vendedor',
+        referralCode: generateReferralCode(),
         affiliatedByUid: user.uid,
         affiliatedByEmail: user.email,
         createdAt: serverTimestamp(),

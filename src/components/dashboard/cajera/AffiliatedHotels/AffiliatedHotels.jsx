@@ -1,48 +1,74 @@
 'use client';
-import React, { useMemo } from 'react';
-import { useConcierges } from '@/hooks/useCommissionData';
+import React, { useEffect, useMemo, useState } from 'react';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import Card from '@/components/ui/Card/Card';
 import './AffiliatedHotels.css';
 
-// Referencia rápida para la cajera: qué hoteles tienen convenio (tienen al
-// menos un concierge registrado) y quiénes son sus concierges. Útil para
-// verificar que alguien que dice venir de "Hotel X" sí es un hotel afiliado.
+// Referencia para la cajera: SOLO hoteles con estado "active" (ya aprobados
+// por un admin). No se muestran comisiones ni datos privados de la
+// solicitud -- nada más lo que la cajera necesita para verificar al hotel.
 const AffiliatedHotels = () => {
-  const { concierges, loading } = useConcierges();
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
-  const hotels = useMemo(() => {
-    const map = new Map();
-    concierges.forEach((c) => {
-      const hotelName = (c.hotel || '').trim() || 'Sin hotel especificado';
-      if (!map.has(hotelName)) {
-        map.set(hotelName, []);
+  useEffect(() => {
+    const q = query(collection(db, 'affiliateApplications'), where('status', '==', 'active'));
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        data.sort((a, b) => (a.businessName || '').localeCompare(b.businessName || ''));
+        setHotels(data);
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Error cargando hoteles afiliados:', error);
+        setLoading(false);
       }
-      map.get(hotelName).push(c);
-    });
-    return Array.from(map.entries())
-      .map(([hotel, people]) => ({ hotel, people }))
-      .sort((a, b) => a.hotel.localeCompare(b.hotel));
-  }, [concierges]);
+    );
+    return () => unsubscribe();
+  }, []);
+
+  const visible = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return hotels;
+    return hotels.filter(
+      (h) =>
+        (h.businessName || '').toLowerCase().includes(term) ||
+        (h.reference || '').toLowerCase().includes(term) ||
+        (h.name || '').toLowerCase().includes(term)
+    );
+  }, [hotels, search]);
 
   return (
     <Card title={`Hoteles Afiliados (${hotels.length})`}>
+      <input
+        type="text"
+        className="hotels-search"
+        placeholder="Buscar por nombre, contacto o código..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       {loading ? (
         <p className="hotels-empty">Cargando...</p>
-      ) : hotels.length === 0 ? (
-        <p className="hotels-empty">Todavía no hay hoteles con concierges registrados.</p>
+      ) : visible.length === 0 ? (
+        <p className="hotels-empty">
+          {hotels.length === 0 ? 'Todavía no hay hoteles activos.' : 'Sin resultados para esa búsqueda.'}
+        </p>
       ) : (
         <div className="hotels-grid">
-          {hotels.map(({ hotel, people }) => (
-            <div key={hotel} className="hotel-card">
+          {visible.map((h) => (
+            <div key={h.id} className="hotel-card">
               <div className="hotel-card__header">
-                <span className="hotel-card__name">🏨 {hotel}</span>
-                <span className="hotel-card__count">{people.length} concierge{people.length === 1 ? '' : 's'}</span>
+                <span className="hotel-card__name">🏨 {h.businessName}</span>
+                <span className="hotel-card__badge">Activo</span>
               </div>
-              <ul className="hotel-card__people">
-                {people.map((p) => (
-                  <li key={p.id}>{p.name || p.email}</li>
-                ))}
-              </ul>
+              <div className="hotel-card__row">Contacto: {h.name}</div>
+              {h.interests && <div className="hotel-card__row">Experiencias: {h.interests}</div>}
+              <div className="hotel-card__ref">{h.reference}</div>
             </div>
           ))}
         </div>

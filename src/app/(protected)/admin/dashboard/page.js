@@ -5,9 +5,10 @@ import ExcelExportButton from '@/components/dashboard/admin/ExcelExportButton/Ex
 import UserManagement from '@/components/dashboard/admin/UserManagement/UserManagement'
 import AffiliateCommissionReport from '@/components/dashboard/shared/AffiliateCommissionReport/AffiliateCommissionReport'
 import AllAffiliatesActivity from '@/components/dashboard/shared/AllAffiliatesActivity/AllAffiliatesActivity'
+import AffiliateApplications from '@/components/dashboard/admin/AffiliateApplications/AffiliateApplications'
 
 export default function Page () {
-  const [tab, setTab] = useState('ventas'); // 'ventas' | 'usuarios' | 'comisiones'
+  const [tab, setTab] = useState('ventas'); // 'ventas' | 'usuarios' | 'comisiones' | 'hoteles'
 
   return (
     <div>
@@ -17,6 +18,7 @@ export default function Page () {
           <button className={tab === 'ventas' ? 'active' : ''} onClick={() => setTab('ventas')}>Ventas</button>
           <button className={tab === 'usuarios' ? 'active' : ''} onClick={() => setTab('usuarios')}>Usuarios</button>
           <button className={tab === 'comisiones' ? 'active' : ''} onClick={() => setTab('comisiones')}>Comisiones</button>
+          <button className={tab === 'hoteles' ? 'active' : ''} onClick={() => setTab('hoteles')}>Hoteles Afiliados</button>
         </div>
         {tab === 'ventas' && <ExcelExportButton />}
       </div>
@@ -29,6 +31,7 @@ export default function Page () {
           <AffiliateCommissionReport scope="all" />
         </div>
       )}
+      {tab === 'hoteles' && <AffiliateApplications />}
     </div>
   )
 }
