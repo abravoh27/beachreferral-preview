@@ -29,6 +29,31 @@ export function useCompletedSales() {
   return { sales, loading };
 }
 
+// TODAS las ventas, sin importar estado (Pending/Completed/Cancelled).
+// Se usa cuando hace falta ver el pipeline completo (ej. "Huéspedes
+// Enviados" del afiliador), no solo lo ya confirmado por la cajera.
+export function useAllSales() {
+  const [sales, setSales] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, 'sales'),
+      (snapshot) => {
+        setSales(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Error cargando ventas:', error);
+        setLoading(false);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+
+  return { sales, loading };
+}
+
 // Todos los usuarios con rol vendedor (concierge), para saber quién afilió
 // a quién (campo affiliatedByUid/affiliatedByEmail).
 export function useConcierges() {

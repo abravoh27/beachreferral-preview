@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import AffiliateForm from '../AffiliateForm/AffiliateForm';
 import AffiliateStats from '../AffiliateStats/AffiliateStats';
+import GuestsSent from '../GuestsSent/GuestsSent';
 import MyConcierges from '../MyConcierges/MyConcierges';
 import AffiliateCommissionReport from '@/components/dashboard/shared/AffiliateCommissionReport/AffiliateCommissionReport';
 import Modal from '@/components/ui/Modal/Modal';
@@ -19,6 +20,7 @@ const AffiliateDashboard = () => {
       </div>
 
       <AffiliateStats />
+      <GuestsSent />
       <AffiliateCommissionReport scope="own" />
       <MyConcierges />
 
