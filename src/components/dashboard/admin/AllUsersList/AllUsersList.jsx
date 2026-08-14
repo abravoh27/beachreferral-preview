@@ -1,7 +1,10 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { collection, doc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import { db } from '@/lib/firebase';
+import { secondaryAuth } from '@/lib/firebaseSecondary';
+import { useAuth } from '@/context/AuthContext';
 import Swal from 'sweetalert2';
 import Card from '@/components/ui/Card/Card';
 import './AllUsersList.css';
@@ -14,13 +17,15 @@ const ROLE_LABELS = {
   owner: 'Dueño',
 };
 
-// Solo estos roles se pueden activar/desactivar desde aquí (los que Admin
-// da de alta directamente). Vendedor/Admin/Owner no tienen este control
-// por ahora, para evitar que alguien se bloquee a sí mismo o a otro admin.
+// Solo estos roles se pueden activar/desactivar/eliminar desde aquí (los
+// que Admin da de alta directamente). Vendedor/Admin/Owner no tienen este
+// control por ahora, para evitar que alguien se bloquee a sí mismo o a
+// otro admin, o borre por accidente el historial de un concierge.
 const DEACTIVATABLE_ROLES = ['cajera', 'afiliador'];
 
 // Lista, en tiempo real, a todos los usuarios del sistema (cualquier rol).
 const AllUsersList = () => {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
@@ -76,6 +81,61 @@ const AllUsersList = () => {
     }
   };
 
+  const handleResendEmail = async (targetUser) => {
+    setUpdatingId(targetUser.id);
+    try {
+      await sendPasswordResetEmail(secondaryAuth, targetUser.email);
+      Swal.fire({
+        title: 'Correo reenviado',
+        text: `Se le mandó a ${targetUser.email} un link para crear/cambiar su contraseña.`,
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error('Error al reenviar correo:', error);
+      let message = 'No se pudo reenviar el correo.';
+      if (error.code === 'auth/user-not-found') {
+        message = 'Esta cuenta ya no existe en Firebase Auth (puede que se haya eliminado antes).';
+      }
+      Swal.fire('Error', message, 'error');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleDelete = async (targetUser) => {
+    const { isConfirmed } = await Swal.fire({
+      title: `¿Eliminar a ${targetUser.name || targetUser.email}?`,
+      html: `Esto borra <strong>por completo</strong> su cuenta (login y perfil). Su correo <strong>${targetUser.email}</strong> queda libre para volver a usarse. Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar definitivamente',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc3545',
+    });
+    if (!isConfirmed) return;
+
+    setUpdatingId(targetUser.id);
+    try {
+      const idToken = await currentUser.getIdToken();
+      const res = await fetch('/api/admin/delete-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ uid: targetUser.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error desconocido');
+
+      Swal.fire({ title: 'Usuario eliminado', icon: 'success', timer: 1500, showConfirmButton: false });
+    } catch (error) {
+      console.error('Error al eliminar usuario:', error);
+      Swal.fire('Error', error.message || 'No se pudo eliminar el usuario.', 'error');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   return (
     <Card title={`Usuarios del Sistema (${users.length})`}>
       {loading ? (
@@ -98,7 +158,8 @@ const AllUsersList = () => {
             <tbody>
               {users.map((u) => {
                 const isActive = u.active !== false;
-                const canToggle = DEACTIVATABLE_ROLES.includes(u.role);
+                const canManage = DEACTIVATABLE_ROLES.includes(u.role);
+                const isBusy = updatingId === u.id;
                 return (
                   <tr key={u.id}>
                     <td data-label="Nombre">{u.name || '-'}</td>
@@ -113,14 +174,22 @@ const AllUsersList = () => {
                       </span>
                     </td>
                     <td data-label="Acción">
-                      {canToggle && (
-                        <button
-                          className={`toggle-active-btn ${isActive ? '' : 'is-reactivate'}`}
-                          onClick={() => handleToggleActive(u)}
-                          disabled={updatingId === u.id}
-                        >
-                          {isActive ? 'Desactivar' : 'Reactivar'}
-                        </button>
+                      {canManage && (
+                        <div className="user-actions">
+                          <button
+                            className={`toggle-active-btn ${isActive ? '' : 'is-reactivate'}`}
+                            onClick={() => handleToggleActive(u)}
+                            disabled={isBusy}
+                          >
+                            {isActive ? 'Desactivar' : 'Reactivar'}
+                          </button>
+                          <button className="resend-btn" onClick={() => handleResendEmail(u)} disabled={isBusy}>
+                            Reenviar correo
+                          </button>
+                          <button className="delete-btn" onClick={() => handleDelete(u)} disabled={isBusy}>
+                            Eliminar
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>

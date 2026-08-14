@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function myRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isActive() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active != false;
+    }
+
+    function isAdminOrOwner() {
+      return isSignedIn() && isActive() && myRole() in ['admin', 'owner'];
+    }
+
+    // USERS (perfiles: vendedor, cajera, afiliador, admin, owner)
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isActive() && (
+        // afiliador registrando un concierge propio
+        (myRole() == 'afiliador' && request.resource.data.role == 'vendedor'
+          && request.resource.data.affiliatedByUid == request.auth.uid) ||
+        // admin creando cajera/afiliador
+        (myRole() == 'admin' && request.resource.data.role in ['cajera', 'afiliador'])
+      );
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdminOrOwner());
+      allow delete: if false; // nunca se borra, solo se desactiva (active: false)
+    }
+
+    // SALES (ventas / reservas)
+    match /sales/{saleId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isActive() && (
+        (myRole() == 'vendedor' && request.resource.data.sellerId == request.auth.uid) ||
+        isAdminOrOwner()
+      );
+      // Cajera confirma llegadas; Admin/Owner editan folio, monto, etc.
+      allow update: if isSignedIn() && isActive() && myRole() in ['cajera', 'admin', 'owner'];
+      allow delete: if false;
+    }
+
+    // WEEKLY PAYMENTS ("marcar como cobrado")
+    match /weeklyPayments/{paymentId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isActive() && myRole() in ['afiliador', 'admin', 'owner'];
+    }
+
+    // AFFILIATE APPLICATIONS (solicitudes de hoteles afiliados)
+    match /affiliateApplications/{appId} {
+      allow read: if isSignedIn();
+      allow create: if isAdminOrOwner();
+      allow update: if isAdminOrOwner();
+      allow delete: if false;
+
+      match /history/{historyId} {
+        allow read: if isSignedIn();
+        allow create: if isAdminOrOwner();
+      }
+    }
+
+    // Por defecto, todo lo demás queda cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
