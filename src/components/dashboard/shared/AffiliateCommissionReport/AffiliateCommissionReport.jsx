@@ -5,7 +5,9 @@ import { useCompletedSales, useConcierges } from '@/hooks/useCommissionData';
 import { useWeeklyPayments, setWeeklyPaymentStatus } from '@/hooks/useWeeklyPayments';
 import { getCommissionWeek, shiftCommissionWeek, formatWeekLabel, formatShortDate } from '@/utils/commissionWeek';
 import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
 import Card from '@/components/ui/Card/Card';
+import Button from '@/components/ui/Button/Button';
 import './AffiliateCommissionReport.css';
 
 // $ que se le paga al afiliador por cada persona que llegó al Beach Club
@@ -107,8 +109,35 @@ const AffiliateCommissionReport = ({ scope = 'own' }) => {
     }
   };
 
+  const handleExport = () => {
+    const rows = [];
+    visibleGroups.forEach((group) => {
+      group.concierges.forEach((c, key) => {
+        rows.push({
+          Afiliador: group.afiliadorEmail,
+          Concierge: c.name,
+          Hotel: c.hotel || '',
+          Visitas: c.visits,
+          Pax: c.pax,
+          'Comisión Afiliador ($)': group.afiliadorUid === 'none' ? 0 : c.pax * PAX_RATE,
+        });
+      });
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Comisiones');
+    XLSX.writeFile(wb, `Comisiones_${week.startStr}_a_${week.endStr}.xlsx`);
+  };
+
   return (
-    <Card title={scope === 'own' ? 'Mi Reporte Semanal' : 'Reporte Semanal de Afiliados'}>
+    <Card
+      title={scope === 'own' ? 'Mi Reporte Semanal' : 'Reporte Semanal de Afiliados'}
+      headerAction={
+        <Button variant="secondary" onClick={handleExport} disabled={visibleGroups.length === 0}>
+          📥 Exportar Excel
+        </Button>
+      }
+    >
       <p className="cycle-note">
         Ciclo: Lunes a Domingo. El reporte cierra el domingo y se paga el <strong>Miércoles</strong> siguiente.
       </p>

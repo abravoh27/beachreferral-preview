@@ -2,11 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { collection, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import * as XLSX from 'xlsx';
 import { db } from '@/lib/firebase';
 import { secondaryAuth } from '@/lib/firebaseSecondary';
 import { useAuth } from '@/context/AuthContext';
 import Swal from 'sweetalert2';
 import Card from '@/components/ui/Card/Card';
+import Button from '@/components/ui/Button/Button';
 import './AllUsersList.css';
 
 const ROLE_LABELS = {
@@ -136,8 +138,32 @@ const AllUsersList = () => {
     }
   };
 
+  const handleExport = () => {
+    const rows = users.map((u) => ({
+      Nombre: u.name || '',
+      Email: u.email || '',
+      Rol: ROLE_LABELS[u.role] || u.role || '',
+      Hotel: u.hotel || '',
+      Teléfono: u.phone || '',
+      Estado: u.active !== false ? 'Activo' : 'Inactivo',
+      'Afiliado por': u.affiliatedByEmail || '',
+      'Creado por': u.createdByEmail || '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Usuarios');
+    XLSX.writeFile(wb, `Usuarios_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
-    <Card title={`Usuarios del Sistema (${users.length})`}>
+    <Card
+      title={`Usuarios del Sistema (${users.length})`}
+      headerAction={
+        <Button variant="secondary" onClick={handleExport} disabled={users.length === 0}>
+          📥 Exportar Excel
+        </Button>
+      }
+    >
       {loading ? (
         <p className="users-list-empty">Cargando...</p>
       ) : users.length === 0 ? (
@@ -150,6 +176,7 @@ const AllUsersList = () => {
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>Rol</th>
+                <th>Hotel</th>
                 <th>Tel.</th>
                 <th>Estado</th>
                 <th></th>
@@ -167,6 +194,7 @@ const AllUsersList = () => {
                     <td data-label="Rol">
                       <span className={`role-badge role-${u.role}`}>{ROLE_LABELS[u.role] || u.role || '-'}</span>
                     </td>
+                    <td data-label="Hotel">{u.hotel || '-'}</td>
                     <td data-label="Tel.">{u.phone || '-'}</td>
                     <td data-label="Estado">
                       <span className={`status-badge ${isActive ? 'is-active' : 'is-inactive'}`}>

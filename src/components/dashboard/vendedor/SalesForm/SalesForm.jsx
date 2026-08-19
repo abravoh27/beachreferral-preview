@@ -58,6 +58,20 @@ const SalesForm = () => {
         createdAt: new Date()
       });
 
+      // Avisar por WhatsApp (si hay destinatarios configurados). No bloquea
+      // ni revienta el flujo si falla -- la venta ya quedó guardada.
+      fetch('/api/notify/new-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reservationFor: formData.reservationFor,
+          city: formData.city,
+          date: formData.date,
+          quantity: formData.quantity,
+          concierge: user.email,
+        }),
+      }).catch((err) => console.error('No se pudo notificar por WhatsApp:', err));
+
       Swal.fire({
         title: '¡Venta Registrada!',
         text: 'La venta se ha guardado exitosamente.',
