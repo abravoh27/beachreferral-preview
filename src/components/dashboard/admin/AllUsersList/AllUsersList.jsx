@@ -138,44 +138,6 @@ const AllUsersList = () => {
     }
   };
 
-  const handleBulkResend = async () => {
-    const targets = users.filter((u) => u.role === 'vendedor' && u.active !== false);
-    if (targets.length === 0) {
-      Swal.fire('Sin cuentas', 'No hay Vendedores/Concierge activos para notificar.', 'info');
-      return;
-    }
-
-    const { isConfirmed } = await Swal.fire({
-      title: `¿Reenviar correo a ${targets.length} Vendedores/Concierge?`,
-      text: 'A cada uno le llega un link para crear o cambiar su contraseña.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, reenviar a todos',
-      cancelButtonText: 'Cancelar',
-    });
-    if (!isConfirmed) return;
-
-    setUpdatingId('bulk');
-    let sent = 0;
-    let failed = 0;
-    for (const target of targets) {
-      try {
-        await sendPasswordResetEmail(secondaryAuth, target.email);
-        sent += 1;
-      } catch (error) {
-        console.error(`Error reenviando a ${target.email}:`, error);
-        failed += 1;
-      }
-    }
-    setUpdatingId(null);
-
-    Swal.fire({
-      title: 'Listo',
-      text: `Se mandaron ${sent} correos.${failed > 0 ? ` ${failed} fallaron (cuentas ya eliminadas de Auth, probablemente).` : ''}`,
-      icon: failed > 0 ? 'warning' : 'success',
-    });
-  };
-
   const handleExport = () => {
     const rows = users.map((u) => ({
       Nombre: u.name || '',
@@ -197,14 +159,9 @@ const AllUsersList = () => {
     <Card
       title={`Usuarios del Sistema (${users.length})`}
       headerAction={
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <Button variant="secondary" onClick={handleBulkResend} disabled={updatingId === 'bulk'}>
-            {updatingId === 'bulk' ? 'Enviando...' : '📧 Reenviar a todos (Vendedores)'}
-          </Button>
-          <Button variant="secondary" onClick={handleExport} disabled={users.length === 0}>
-            📥 Exportar Excel
-          </Button>
-        </div>
+        <Button variant="secondary" onClick={handleExport} disabled={users.length === 0}>
+          📥 Exportar Excel
+        </Button>
       }
     >
       {loading ? (
